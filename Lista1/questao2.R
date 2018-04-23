@@ -1,3 +1,5 @@
+# Código-Fonte para a Questão 2
+
 # Leitura dos Dados de Entrada
 dados1 <- read.csv("dados1.csv", header = FALSE, stringsAsFactors = FALSE)
 
