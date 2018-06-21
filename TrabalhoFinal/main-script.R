@@ -1,3 +1,7 @@
+# Importação de Dependências
+# Necessária Versão R >= 3.4
+library(C50)
+
 # Base de Dados Retirada de:
 # https://archive.ics.uci.edu/ml/datasets/statlog+(german+credit+data)
 #
@@ -81,3 +85,9 @@ credit_data_test_set <- credit_data[-train_sample_indexes, ]
 # Verificação da Proporção das Classes nos Conjuntos de Treinamento e Teste
 prop.table(table(credit_data_train_set$default))
 prop.table(table(credit_data_test_set$default))
+
+# Treinamento do Modelo - Geração da Árvore de Decisão Utilizando o Algoritmo C5.0
+tree_model <- C5.0(credit_data_train_set[-17], credit_data_train_set$default)
+
+# Verificação do Modelo - Em Especial, da Matriz de Confusão no Conjunto de Treinamento
+summary(tree_model)
