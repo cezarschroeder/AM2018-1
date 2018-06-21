@@ -1,6 +1,7 @@
 # Importação de Dependências
 # Necessária Versão R >= 3.4
 library(C50)
+library(gmodels)
 
 # Base de Dados Retirada de:
 # https://archive.ics.uci.edu/ml/datasets/statlog+(german+credit+data)
@@ -86,8 +87,28 @@ credit_data_test_set <- credit_data[-train_sample_indexes, ]
 prop.table(table(credit_data_train_set$default))
 prop.table(table(credit_data_test_set$default))
 
-# Treinamento do Modelo - Geração da Árvore de Decisão Utilizando o Algoritmo C5.0
+# Treinamento do Modelo C5.0 Simples (Sem Boosting Adaptativo)
+
+# Geração da Árvore de Decisão Utilizando o Algoritmo C5.0
 tree_model <- C5.0(credit_data_train_set[-17], credit_data_train_set$default)
 
-# Verificação do Modelo - Em Especial, da Matriz de Confusão no Conjunto de Treinamento
+# Predição e Avaliação da Capacidade de Generalização do Modelo C5.0 Simples
+# Verificação da Matriz de Confusão no Conjunto de Treinamento
 summary(tree_model)
+# Etapa de Predição Usando o Modelo
+predicted_class_labels <- predict(tree_model, credit_data_test_set)
+# Avaliação de Desempenho do Modelo no Conjunto de Teste
+CrossTable(credit_data_test_set$default, predicted_class_labels, prop.chisq = FALSE, prop.c = FALSE, prop.r = FALSE, dnn = c('actual default', 'predicted default'))
+
+# Treinamento do Modelo C5.0 com Boosting Adaptativo
+
+# Geração da Floresta de Árvores de Decisão Utilizando o Algoritmo C5.0 (Com 10 Árvores)
+tree_model_boosting <- C5.0(credit_data_train_set[-17], credit_data_train_set$default, trials = 10)
+
+# Predição e Avaliação da Capacidade de Generalização do Modelo C5.0 com Boosting Adaptativo
+# Verificação da Matriz de Confusão no Conjunto de Treinamento
+summary(tree_model_boosting)
+# Etapa de Predição Usando o Modelo
+predicted_class_labels <- predict(tree_model_boosting, credit_data_test_set)
+# Avaliação de Desempenho do Modelo no Conjunto de Teste
+CrossTable(credit_data_test_set$default, predicted_class_labels, prop.chisq = FALSE, prop.c = FALSE, prop.r = FALSE, dnn = c('actual default', 'predicted default'))
