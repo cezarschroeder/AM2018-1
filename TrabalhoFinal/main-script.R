@@ -1,7 +1,9 @@
 # Importação de Dependências
 # Necessária Versão R >= 3.4
-library(C50)
 library(gmodels)
+library(C50)
+library(caret)
+library(ROCR)
 
 # Base de Dados Retirada de:
 # https://archive.ics.uci.edu/ml/datasets/statlog+(german+credit+data)
@@ -96,9 +98,18 @@ tree_model <- C5.0(credit_data_train_set[-17], credit_data_train_set$default)
 # Verificação da Matriz de Confusão no Conjunto de Treinamento
 summary(tree_model)
 # Etapa de Predição Usando o Modelo
-predicted_class_labels <- predict(tree_model, credit_data_test_set)
+m_predicted_class_labels <- predict(tree_model, credit_data_test_set)
+m_predicted_class_probs <- predict(tree_model, credit_data_test_set, type = "prob")
 # Avaliação de Desempenho do Modelo no Conjunto de Teste
-CrossTable(credit_data_test_set$default, predicted_class_labels, prop.chisq = FALSE, prop.c = FALSE, prop.r = FALSE, dnn = c('actual default', 'predicted default'))
+# DEPRECATED: model_performance <- CrossTable(credit_data_test_set$default, predicted_class_labels, prop.chisq = FALSE, prop.c = FALSE, prop.r = FALSE, dnn = c('actual default', 'predicted default'))
+# Avaliação Utilizando o Pacote CARET
+model_performance <- confusionMatrix(predicted_class_labels, credit_data_test_set$default, positive = "yes")
+# Avaliação Utilizando o Pacote ROCR
+model_rocr_pred <- prediction(predictions = m_predicted_class_probs[,2], labels = credit_data_test_set$default)
+model_rocr_perf <- performance(model_rocr_pred, measure = "tpr", x.measure = "fpr")
+plot(model_rocr_perf, main = "ROC Curve for C5.0 Without Boosting", col = "blue", lwd = 3)
+model_auc <- performance(model_rocr_pred, measure = "auc")
+model_auc_value <- unlist(model_auc@y.values)
 
 # Treinamento do Modelo C5.0 com Boosting Adaptativo
 
@@ -109,6 +120,20 @@ tree_model_boosting <- C5.0(credit_data_train_set[-17], credit_data_train_set$de
 # Verificação da Matriz de Confusão no Conjunto de Treinamento
 summary(tree_model_boosting)
 # Etapa de Predição Usando o Modelo
-predicted_class_labels <- predict(tree_model_boosting, credit_data_test_set)
+mboost_predicted_class_labels <- predict(tree_model_boosting, credit_data_test_set)
+mboost_predicted_class_probs <- predict(tree_model_boosting, credit_data_test_set, type = "prob")
 # Avaliação de Desempenho do Modelo no Conjunto de Teste
-CrossTable(credit_data_test_set$default, predicted_class_labels, prop.chisq = FALSE, prop.c = FALSE, prop.r = FALSE, dnn = c('actual default', 'predicted default'))
+# DEPRECATED: model_boosting_performance <- CrossTable(credit_data_test_set$default, predicted_class_labels, prop.chisq = FALSE, prop.c = FALSE, prop.r = FALSE, dnn = c('actual default', 'predicted default'))
+# Avaliação Utilizando o Pacote CARET
+model_boosting_performance <- confusionMatrix(predicted_class_labels, credit_data_test_set$default, positive = "yes")
+# Avaliação Utilizando o Pacote ROCR
+mboost_rocr_pred <- prediction(predictions = mboost_predicted_class_probs[,2], labels = credit_data_test_set$default)
+mboost_rocr_perf <- performance(mboost_rocr_pred, measure = "tpr", x.measure = "fpr")
+plot(mboost_rocr_perf, main = "ROC Curve for C5.0 With Boosting", col = "blue", lwd = 3)
+mboost_auc <- performance(mboost_rocr_pred, measure = "auc")
+mboost_auc_value <- unlist(mboost_auc@y.values)
+
+# Treinamento do Modelo Random Forest
+# Avaliação de Desempenho do Modelo no Conjunto de Teste
+
+# Experimento Final de Avaliação de Desempenho
