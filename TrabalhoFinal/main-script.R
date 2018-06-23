@@ -81,7 +81,7 @@ hist(credit_data$dependents, main = "Histogram of Dependent Count", xlab = "Numb
 # Proporção Original das Classes
 prop.table(table(credit_data$default))
 # Aleatoriedade na Escolha das Instâncias de Treino e Teste
-set.seed(123)
+set.seed(123) # Configuração da Semente para Garantir a Reproducibilidade dos Experimentos
 train_sample_indexes <- sample(1000,900)
 # Construção dos Conjuntos de Treino e Teste
 credit_data_train_set <- credit_data[train_sample_indexes, ]
@@ -108,7 +108,7 @@ model_performance <- confusionMatrix(predicted_class_labels, credit_data_test_se
 # Avaliação Utilizando o Pacote ROCR
 model_rocr_pred <- prediction(predictions = m_predicted_class_probs[,2], labels = credit_data_test_set$default)
 model_rocr_perf <- performance(model_rocr_pred, measure = "tpr", x.measure = "fpr")
-plot(model_rocr_perf, main = "ROC Curve for C5.0 Without Boosting", col = "blue", lwd = 3)
+plot(model_rocr_perf, main = "ROC Curve for C5.0 Without Boosting", col = "blue", lwd = 2)
 model_auc <- performance(model_rocr_pred, measure = "auc")
 model_auc_value <- unlist(model_auc@y.values)
 
@@ -131,14 +131,14 @@ model_boosting_performance <- confusionMatrix(predicted_class_labels, credit_dat
 mboost_rocr_pred <- prediction(predictions = mboost_predicted_class_probs[,2], labels = credit_data_test_set$default)
 mboost_rocr_perf <- performance(mboost_rocr_pred, measure = "tpr", x.measure = "fpr")
 par(new = TRUE)
-plot(mboost_rocr_perf, main = "ROC Curve for C5.0 With Boosting", col = "blue", lwd = 3)
+plot(mboost_rocr_perf, main = "ROC Curve for C5.0 With Boosting", col = "blue", lwd = 2)
 mboost_auc <- performance(mboost_rocr_pred, measure = "auc")
 mboost_auc_value <- unlist(mboost_auc@y.values)
 
 # Treinamento do Modelo Random Forest
 
 # Geração da Floresta Aleatória Utilizando o Algoritmo randomForest
-set.seed(300)
+set.seed(300) # Configuração da Semente para Garantir a Reproducibilidade dos Experimentos
 random_forest_model <- randomForest(credit_data_train_set[-17], credit_data_train_set$default)
 
 # Predição e Avaliação da Capacidade de Generalização do Modelo Random Forest
@@ -152,7 +152,7 @@ rf_performance <- confusionMatrix(rf_predicted_class_labels, credit_data_test_se
 rf_rocr_pred <- prediction(predictions = rf_predicted_class_probs[,2], labels = credit_data_test_set$default)
 rf_rocr_perf <- performance(rf_rocr_pred, measure = "tpr", x.measure = "fpr")
 par(new = TRUE)
-plot(rf_rocr_perf, main = "ROC Curve for Random Forest", col = "blue", lwd = 3)
+plot(rf_rocr_perf, main = "ROC Curve for Random Forest", col = "blue", lwd = 2)
 rf_auc <- performance(rf_rocr_pred, measure = "auc")
 rf_auc_value <- unlist(rf_auc@y.values)
 
@@ -163,4 +163,16 @@ plot(mboost_rocr_perf, main = "", col = "green", lwd = 2)
 par(new = TRUE)
 plot(rf_rocr_perf, main = "", col = "red", lwd = 2)
 
-# Experimento Final de Avaliação de Desempenho
+# Experimento Final de Avaliação de Desempenho Utilizando o Pacote CARET
+
+# Configuração e Projeto do Experimento de Avaliação 
+# Utilizando Validação Cruzada em 10 Partes
+training_ctrl <- trainControl(method = "repeatedcv", number = 30, repeats = 10)
+# Configuração da Análise Fatorial para os Modelos C5.0 sem (trials = 1) e com Boosting (trials > 1)
+c50_factor_grid <- expand.grid(.model = "tree", .trials = c(1, 10, 20, 30, 40), .winnow = "FALSE")
+# Configuração da Análise Fatorial para o Modelo Random Forest (Número de Atributos a Serem Considerados nas Divisões)
+rf_factor_grid <- expand.grid(.mtry = c(2, 4, 8, 16))
+
+# Treinamento e Validação (Ajuste de Parâmetros pela Análise Fatorial) dos Modelos
+tree_boost_model_eval <- train(default ~ ., data = credit_data, method = "C5.0", metric = "Kappa", trControl = training_ctrl, tuneGrid = c50_factor_grid)
+random_forest_model_eval <- train(default ~ ., data = credit_data, method = "rf", metric = "Kappa", trControl = training_ctrl, tuneGrid = rf_factor_grid)
