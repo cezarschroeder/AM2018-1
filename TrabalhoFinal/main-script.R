@@ -2,6 +2,7 @@
 # Necessária Versão R >= 3.4
 library(gmodels)
 library(C50)
+library(randomForest)
 library(caret)
 library(ROCR)
 
@@ -129,11 +130,37 @@ model_boosting_performance <- confusionMatrix(predicted_class_labels, credit_dat
 # Avaliação Utilizando o Pacote ROCR
 mboost_rocr_pred <- prediction(predictions = mboost_predicted_class_probs[,2], labels = credit_data_test_set$default)
 mboost_rocr_perf <- performance(mboost_rocr_pred, measure = "tpr", x.measure = "fpr")
+par(new = TRUE)
 plot(mboost_rocr_perf, main = "ROC Curve for C5.0 With Boosting", col = "blue", lwd = 3)
 mboost_auc <- performance(mboost_rocr_pred, measure = "auc")
 mboost_auc_value <- unlist(mboost_auc@y.values)
 
 # Treinamento do Modelo Random Forest
+
+# Geração da Floresta Aleatória Utilizando o Algoritmo randomForest
+set.seed(300)
+random_forest_model <- randomForest(credit_data_train_set[-17], credit_data_train_set$default)
+
+# Predição e Avaliação da Capacidade de Generalização do Modelo Random Forest
+# Etapa de Predição Usando o Modelo
+rf_predicted_class_labels <- predict(random_forest_model, credit_data_test_set)
+rf_predicted_class_probs <- predict(random_forest_model, credit_data_test_set, type = "prob")
 # Avaliação de Desempenho do Modelo no Conjunto de Teste
+# Avaliação Utilizando o Pacote CARET
+rf_performance <- confusionMatrix(rf_predicted_class_labels, credit_data_test_set$default, positive = "yes")
+# Avaliação Utilizando o Pacote ROCR
+rf_rocr_pred <- prediction(predictions = rf_predicted_class_probs[,2], labels = credit_data_test_set$default)
+rf_rocr_perf <- performance(rf_rocr_pred, measure = "tpr", x.measure = "fpr")
+par(new = TRUE)
+plot(rf_rocr_perf, main = "ROC Curve for Random Forest", col = "blue", lwd = 3)
+rf_auc <- performance(rf_rocr_pred, measure = "auc")
+rf_auc_value <- unlist(rf_auc@y.values)
+
+# Geração das Três Curvas ROC em um Mesmo Gráfico
+plot(model_rocr_perf, main = "ROC Curves for the Models Under Analysis", sub = "C5.0 (Blue), C5.0 w/ Boosting (Green), Random Forest (Red)", col = "blue", lwd = 2)
+par(new = TRUE)
+plot(mboost_rocr_perf, main = "", col = "green", lwd = 2)
+par(new = TRUE)
+plot(rf_rocr_perf, main = "", col = "red", lwd = 2)
 
 # Experimento Final de Avaliação de Desempenho
