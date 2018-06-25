@@ -196,13 +196,3 @@ rf_bag_vs_simple_acc <- t.test(x1, x2, alternative = "less", paired = TRUE)
 x1 <- rnorm(mean = tree_boost_model_eval$results$Kappa[1], sd = tree_boost_model_eval$results$KappaSD[1], n = 300) # Árvore de Decisão Simples
 x2 <- rnorm(mean = random_forest_model_eval$results$Kappa[4], sd = random_forest_model_eval$results$KappaSD[4], n = 300) # Floresta Aleatória e Bagging (16 Atributos - Melhor)
 rf_bag_vs_simple_kappa <- t.test(x1, x2, alternative = "less", paired = TRUE)
-
-# Teste Estatístico t Pareado (Acurácia Preditiva) Floresta Aleatória (Bagging, .mtry = 16) x Boosting (40 Árvores)
-x1 <- rnorm(mean = tree_boost_model_eval$results$Accuracy[5], sd = tree_boost_model_eval$results$AccuracySD[5], n = 300) # Árvore de Decisão Simples
-x2 <- rnorm(mean = random_forest_model_eval$results$Accuracy[4], sd = random_forest_model_eval$results$AccuracySD[4], n = 300) # Floresta Aleatória e Bagging (16 Atributos - Melhor)
-rf_bag_vs_simple_acc <- t.test(x1, x2, alternative = "less", paired = TRUE)
-
-# Teste Estatístico t Pareado (Estatística Kappa) Floresta Aleatória (Bagging, .mtry = 16) x Boosting (40 Árvores)
-x1 <- rnorm(mean = tree_boost_model_eval$results$Kappa[5], sd = tree_boost_model_eval$results$KappaSD[5], n = 300) # Árvore de Decisão Simples
-x2 <- rnorm(mean = random_forest_model_eval$results$Kappa[4], sd = random_forest_model_eval$results$KappaSD[4], n = 300) # Floresta Aleatória e Bagging (16 Atributos - Melhor)
-rf_bag_vs_simple_kappa <- t.test(x1, x2, alternative = "less", paired = TRUE)
