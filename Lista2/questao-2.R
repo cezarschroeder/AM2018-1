@@ -1,0 +1,1 @@
+# Script Principal para a Questão 2
