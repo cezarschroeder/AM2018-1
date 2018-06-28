@@ -13,6 +13,7 @@ credit_data <- read.csv("credit.csv")
 # Configuração e Projeto do Experimento de Avaliação 
 
 # Utilizando Validação Cruzada em 10 Partes Para Treinamento e Validação dos Três Modelos Considerados
+set.seed(24)
 training_ctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 10)
 
 # Configuração da Análise Fatorial para o Modelo SVM Linear

@@ -13,7 +13,8 @@ iris_data <- read.csv("iris_data.csv")
 # Configuração e Projeto do Experimento de Avaliação 
 
 # Utilizando Validação Cruzada em 10 Partes Para Treinamento e Validação do Modelo MLP
+set.seed(21)
 training_ctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 10)
 
 # Treinamento e Validação (Ajuste de Parâmetros) para o Modelo
-mlp_model_eval <- train(class ~ ., data = iris_data, method = "nnet", metric = "Accuracy", trControl = training_ctrl)
+mlp_model_eval <- train(class ~ ., data = iris_data, method = "nnet", entropy = TRUE, maxit = 1000, metric = "Accuracy", trControl = training_ctrl)
