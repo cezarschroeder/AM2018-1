@@ -104,7 +104,7 @@ m_predicted_class_probs <- predict(tree_model, credit_data_test_set, type = "pro
 # Avaliação de Desempenho do Modelo no Conjunto de Teste
 # DEPRECATED: model_performance <- CrossTable(credit_data_test_set$default, predicted_class_labels, prop.chisq = FALSE, prop.c = FALSE, prop.r = FALSE, dnn = c('actual default', 'predicted default'))
 # Avaliação Utilizando o Pacote CARET
-model_performance <- confusionMatrix(predicted_class_labels, credit_data_test_set$default, positive = "yes")
+model_performance <- confusionMatrix(m_predicted_class_labels, credit_data_test_set$default, positive = "yes")
 # Avaliação Utilizando o Pacote ROCR
 model_rocr_pred <- prediction(predictions = m_predicted_class_probs[,2], labels = credit_data_test_set$default)
 model_rocr_perf <- performance(model_rocr_pred, measure = "tpr", x.measure = "fpr")
@@ -126,7 +126,7 @@ mboost_predicted_class_probs <- predict(tree_model_boosting, credit_data_test_se
 # Avaliação de Desempenho do Modelo no Conjunto de Teste
 # DEPRECATED: model_boosting_performance <- CrossTable(credit_data_test_set$default, predicted_class_labels, prop.chisq = FALSE, prop.c = FALSE, prop.r = FALSE, dnn = c('actual default', 'predicted default'))
 # Avaliação Utilizando o Pacote CARET
-model_boosting_performance <- confusionMatrix(predicted_class_labels, credit_data_test_set$default, positive = "yes")
+model_boosting_performance <- confusionMatrix(mboost_predicted_class_labels, credit_data_test_set$default, positive = "yes")
 # Avaliação Utilizando o Pacote ROCR
 mboost_rocr_pred <- prediction(predictions = mboost_predicted_class_probs[,2], labels = credit_data_test_set$default)
 mboost_rocr_perf <- performance(mboost_rocr_pred, measure = "tpr", x.measure = "fpr")
